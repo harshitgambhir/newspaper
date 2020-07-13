@@ -28,6 +28,9 @@ class DocumentCleaner(object):
             "|date|^print$|popup|author-dropdown|tools|socialtools|byline"
             "|konafilter|KonaFilter|breadcrumbs|^fn$|wp-caption-text"
             "|legende|ajoutVideo|timestamp|js_replies"
+            "|reltd-main"
+            "|twitter-tweet"
+            "|ins_instory_dv_caption"
         )
         self.regexp_namespace = "http://exslt.org/regular-expressions"
         self.nauthy_ids_re = ("//*[re:test(@id, '%s', 'i')]" %
@@ -38,6 +41,7 @@ class DocumentCleaner(object):
                                 self.remove_nodes_re)
         self.div_to_p_re = r"<(a|blockquote|dl|div|img|ol|p|pre|table|ul)"
         self.caption_re = "^caption$"
+        self.figcaption_re = "figcaption"
         self.google_re = " google "
         self.entries_re = "^[^entry-]more.*$"
         self.facebook_re = "[^-]facebook"
@@ -60,6 +64,7 @@ class DocumentCleaner(object):
         doc_to_clean = self.clean_bad_tags(doc_to_clean)
         doc_to_clean = self.remove_nodes_regex(doc_to_clean, self.caption_re)
         doc_to_clean = self.remove_nodes_regex(doc_to_clean, self.google_re)
+        doc_to_clean = self.remove_nodes_regex(doc_to_clean, self.figcaption_re)
         doc_to_clean = self.remove_nodes_regex(doc_to_clean, self.entries_re)
         doc_to_clean = self.remove_nodes_regex(doc_to_clean, self.facebook_re)
         doc_to_clean = self.remove_nodes_regex(doc_to_clean,
@@ -137,8 +142,11 @@ class DocumentCleaner(object):
         return doc
 
     def remove_nodes_regex(self, doc, pattern):
-        for selector in ['id', 'class']:
-            reg = "//*[re:test(@%s, '%s', 'i')]" % (selector, pattern)
+        for selector in ['id', 'class', 'local-name']:
+            if selector == 'local-name':
+                reg = "//*[re:test(local-name(), '%s', 'i')]" % (pattern)
+            else:
+                reg = "//*[re:test(@%s, '%s', 'i')]" % (selector, pattern)
             naughty_list = self.parser.xpath_re(doc, reg)
             for node in naughty_list:
                 self.parser.remove(node)
