@@ -31,6 +31,7 @@ class DocumentCleaner(object):
             "|reltd-main"
             "|twitter-tweet"
             "|ins_instory_dv_caption"
+            "|jiosaavn-widget"
         )
         self.regexp_namespace = "http://exslt.org/regular-expressions"
         self.nauthy_ids_re = ("//*[re:test(@id, '%s', 'i')]" %

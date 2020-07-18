@@ -821,7 +821,7 @@ class ContentExtractor(object):
                 parent_nodes.append(parent_node)
 
             # Parent of parent node
-            parent_parent_node = self.parser.getParent(parent_node)
+            parent_parent_node = self.parser.getParent(self.parser.getParent(parent_node))
             if parent_parent_node is not None:
                 self.update_node_count(parent_parent_node, 1)
                 self.update_score(parent_parent_node, upscore / 2)
@@ -993,7 +993,8 @@ class ContentExtractor(object):
         num_links = float(len(links))
         link_divisor = float(num_link_words / words_number)
         score = float(link_divisor * num_links)
-        if score >= 1.0:
+
+        if score >= 2.0:
             return True
         return False
         # return True if score > 1.0 else False
