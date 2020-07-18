@@ -813,7 +813,7 @@ class ContentExtractor(object):
                 get_stopword_count(text_node)
             upscore = int(word_stats.get_stopword_count() + boost_score)
 
-            parent_node = self.parser.getParent(node)
+            parent_node = self.parser.getParent(self.parser.getParent(node))
             self.update_score(parent_node, upscore)
             self.update_node_count(parent_node, 1)
 
@@ -821,7 +821,7 @@ class ContentExtractor(object):
                 parent_nodes.append(parent_node)
 
             # Parent of parent node
-            parent_parent_node = self.parser.getParent(self.parser.getParent(parent_node))
+            parent_parent_node = self.parser.getParent(parent_node)
             if parent_parent_node is not None:
                 self.update_node_count(parent_parent_node, 1)
                 self.update_score(parent_parent_node, upscore / 2)
@@ -1048,7 +1048,7 @@ class ContentExtractor(object):
         node = self.add_siblings(top_node)
         for e in self.parser.getChildren(node):
             e_tag = self.parser.getTag(e)
-            print(e_tag)
+            print(e_tag, self.parser.getText(e))
             if e_tag != 'p':
                 if self.is_highlink_density(e):
                     self.parser.remove(e)
