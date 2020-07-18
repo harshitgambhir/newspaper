@@ -1048,6 +1048,7 @@ class ContentExtractor(object):
         node = self.add_siblings(top_node)
         for e in self.parser.getChildren(node):
             e_tag = self.parser.getTag(e)
+            print(e_tag)
             if e_tag != 'p':
                 if self.is_highlink_density(e):
                     self.parser.remove(e)
