@@ -813,7 +813,7 @@ class ContentExtractor(object):
                 get_stopword_count(text_node)
             upscore = int(word_stats.get_stopword_count() + boost_score)
 
-            parent_node = self.parser.getParent(self.parser.getParent(node))
+            parent_node = self.parser.getParent(node)
             self.update_score(parent_node, upscore)
             self.update_node_count(parent_node, 1)
 
