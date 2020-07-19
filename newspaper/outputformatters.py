@@ -11,6 +11,7 @@ from html import unescape
 import logging
 
 from .text import innerTrim
+import re
 
 
 log = logging.getLogger(__name__)
@@ -56,10 +57,28 @@ class OutputFormatter(object):
         self.replace_with_text()
         self.remove_empty_tags()
         self.remove_trailing_media_div()
+
+        self.remove_h1_nodes()
+        self.remove_ul_nodes()
+        self.remove_ol_nodes()
+
         text = self.convert_to_text()
+        firstp = self.get_firstp()
         # print(self.parser.nodeToString(self.get_top_node()))
 
-        return (text, html)
+        return (text, firstp, html)
+
+    def remove_h1_nodes(self):
+        for e in self.parser.getElementsByTag(self.top_node, tag='h1'):
+            self.parser.remove(e)
+
+    def remove_ul_nodes(self):
+        for e in self.parser.getElementsByTag(self.top_node, tag='ul'):
+            self.parser.remove(e)
+
+    def remove_ol_nodes(self):
+        for e in self.parser.getElementsByTag(self.top_node, tag='ol'):
+            self.parser.remove(e)
 
     def convert_to_text(self):
         txts = []
@@ -71,6 +90,27 @@ class OutputFormatter(object):
                 txt = None
 
             if txt:
+                txt = unescape(txt)
+                txt_lis = innerTrim(txt).split(r'\n')
+                txt_lis = [n.strip(' ') for n in txt_lis]
+                txts.extend(txt_lis)
+        return '\n\n'.join(txts)
+
+    def get_firstp(self):
+        txts = []
+        for node in list(self.get_top_node()):
+            txt = None
+            try:
+                for e in self.parser.getElementsByTag(node, tag='p'):
+                    txt = self.parser.getText(e)
+                    if(len(txt) > 10):
+                        break
+
+            except ValueError as err:  # lxml error
+                log.info('%s ignoring lxml node error: %s', __title__, err)
+                txt = None
+
+            if txt is not None:
                 txt = unescape(txt)
                 txt_lis = innerTrim(txt).split(r'\n')
                 txt_lis = [n.strip(' ') for n in txt_lis]

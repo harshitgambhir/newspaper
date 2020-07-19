@@ -88,6 +88,9 @@ class Article(object):
         # Body text from this article
         self.text = ''
 
+        # First paragraph from this article
+        self.firstp = ''
+
         # `keywords` are extracted via nlp() from the body text
         self.keywords = []
 
@@ -278,10 +281,11 @@ class Article(object):
             self.top_node = self.extractor.post_cleanup(self.top_node)
             self.clean_top_node = copy.deepcopy(self.top_node)
 
-            text, article_html = output_formatter.get_formatted(
+            text, firstp, article_html = output_formatter.get_formatted(
                 self.top_node)
             self.set_article_html(article_html)
             self.set_text(text)
+            self.set_firstp(firstp)
 
         self.fetch_images()
 
@@ -451,6 +455,11 @@ class Article(object):
         text = text[:self.config.MAX_TEXT]
         if text:
             self.text = text
+
+    def set_firstp(self, text):
+        text = text[:self.config.MAX_TEXT]
+        if text:
+            self.firstp = text
 
     def set_html(self, html):
         """Encode HTML before setting it

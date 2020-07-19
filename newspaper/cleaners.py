@@ -55,14 +55,19 @@ class DocumentCleaner(object):
         self.contains_article = './/article|.//*[@id="article"]|.//*[@itemprop="articleBody"]'
 
     def clean(self, doc_to_clean):
+
         """Remove chunks of the DOM as specified
         """
         doc_to_clean = self.clean_body_classes(doc_to_clean)
+
+        doc_to_clean = self.remove_special_nodes(doc_to_clean)
+
         doc_to_clean = self.clean_article_tags(doc_to_clean)
         doc_to_clean = self.clean_em_tags(doc_to_clean)
         doc_to_clean = self.remove_drop_caps(doc_to_clean)
         doc_to_clean = self.remove_scripts_styles(doc_to_clean)
         doc_to_clean = self.clean_bad_tags(doc_to_clean)
+        doc_to_clean = self.remove_ads_nodes(doc_to_clean)
         doc_to_clean = self.remove_nodes_regex(doc_to_clean, self.caption_re)
         doc_to_clean = self.remove_nodes_regex(doc_to_clean, self.google_re)
         doc_to_clean = self.remove_nodes_regex(doc_to_clean, self.figcaption_re)
@@ -72,10 +77,28 @@ class DocumentCleaner(object):
                                                self.facebook_broadcasting_re)
         doc_to_clean = self.remove_nodes_regex(doc_to_clean, self.twitter_re)
         doc_to_clean = self.clean_para_spans(doc_to_clean)
-        doc_to_clean = self.div_to_para(doc_to_clean, 'div')
-        doc_to_clean = self.div_to_para(doc_to_clean, 'span')
-        doc_to_clean = self.div_to_para(doc_to_clean, 'section')
+        # doc_to_clean = self.div_to_para(doc_to_clean, 'div')
+        # doc_to_clean = self.div_to_para(doc_to_clean, 'span')
+        # doc_to_clean = self.div_to_para(doc_to_clean, 'section')
         return doc_to_clean
+
+    def remove_special_nodes(self, doc):
+        for e in doc.xpath('//span[@class="_1zqzjicLfil9I9wfjfz2Gr"]'):
+            self.parser.remove(e)
+        for e in doc.xpath('//span[@class="_3qS8ZGooZdypeBayu6yHWN"]'):
+            self.parser.remove(e)
+        for e in doc.xpath('//span[contains(@style,"color: #7e90a0")]'):
+            print(e.attrib)
+            self.parser.remove(e)
+        return doc
+
+    def remove_ads_nodes(self, doc):
+        for e in self.parser.xpath_re(doc, "//div[re:test(@id, '^.*Ad--.*$', 'i')]"):
+            prevSibling = self.parser.previousSibling(e)
+            if prevSibling is not None:
+                self.parser.remove(prevSibling)
+            self.parser.remove(e)
+        return doc
 
     def clean_body_classes(self, doc):
         """Removes the `class` attribute from the <body> tag because

@@ -292,6 +292,9 @@ class ContentExtractor(object):
         filter_title_text_h1 = filter_regex.sub('', title_text_h1).lower()
         filter_title_text_fb = filter_regex.sub('', title_text_fb).lower()
 
+        if title_text_h1 and len(title_text_h1) > 10:
+            return title_text_h1
+
         # check for better alternatives for title_text and possibly skip splitting
         if title_text_h1 == title_text:
             used_delimeter = True
@@ -813,7 +816,7 @@ class ContentExtractor(object):
                 get_stopword_count(text_node)
             upscore = int(word_stats.get_stopword_count() + boost_score)
 
-            parent_node = self.parser.getParent(node)
+            parent_node = self.parser.getParent(self.parser.getParent(node))
             self.update_score(parent_node, upscore)
             self.update_node_count(parent_node, 1)
 
