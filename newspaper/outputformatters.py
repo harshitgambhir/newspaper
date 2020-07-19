@@ -13,6 +13,8 @@ import logging
 from .text import innerTrim
 import re
 
+from functools  import reduce
+
 
 log = logging.getLogger(__name__)
 
@@ -103,7 +105,7 @@ class OutputFormatter(object):
         return '\n\n'.join(txts)
 
     def get_firstp(self, canonical_link, doc):
-        txt = ''
+        txts = []
         try:
             if canonical_link.startswith("https://navbharattimes.indiatimes.com") or canonical_link.startswith("http://navbharattimes.indiatimes.com"):
                 article_synopics = doc.xpath("//h2[@class='article_synopics']")
@@ -127,10 +129,16 @@ class OutputFormatter(object):
             log.info('%s ignoring lxml node error: %s', __title__, err)
             txt = None
 
-        txt = unescape(txt)
-        txt_lis = innerTrim(txt).split(r'\n')
-        txt_lis = [n.strip(' ') for n in txt_lis]
-        return txt
+        if txt:
+            txt = unescape(txt)
+            txt_lis = self.splitkeepsep(innerTrim(txt), '।')
+            for txtx in txt_lis:
+                if(len(txts) != 3):
+                    txts.append(re.sub(r'\(([^\)]+)\)', " ", txtx))
+        return ' '.join(txts)
+
+    def splitkeepsep(self, s, sep):
+        return reduce(lambda acc, elem: acc[:-1] + [acc[-1] + elem] if elem == sep else acc + [elem], re.split("(%s)" % re.escape(sep), s), [])
 
     def convert_to_html(self):
         cleaned_node = self.parser.clean_article_html(self.get_top_node())
