@@ -39,7 +39,7 @@ class OutputFormatter(object):
     def get_top_node(self):
         return self.top_node
 
-    def get_formatted(self, top_node):
+    def get_formatted(self, top_node, canonical_link):
         """Returns the body text of an article, and also the body article
         html if specified. Returns in (text, html) form
         """
@@ -61,6 +61,7 @@ class OutputFormatter(object):
         self.remove_h1_nodes()
         self.remove_ul_nodes()
         self.remove_ol_nodes()
+        self.remove_unique_nodes(canonical_link)
 
         text = self.convert_to_text()
         firstp = self.get_firstp()
@@ -79,6 +80,11 @@ class OutputFormatter(object):
     def remove_ol_nodes(self):
         for e in self.parser.getElementsByTag(self.top_node, tag='ol'):
             self.parser.remove(e)
+
+    def remove_unique_nodes(self, canonical_link):
+        if canonical_link.startswith("https://www.punjabkesari.in"):
+            for e in self.top_node.xpath("//p[@itemprop='description']"):
+                self.parser.remove(e)
 
     def convert_to_text(self):
         txts = []
