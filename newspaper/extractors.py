@@ -996,8 +996,7 @@ class ContentExtractor(object):
         num_links = float(len(links))
         link_divisor = float(num_link_words / words_number)
         score = float(link_divisor * num_links)
-
-        if score >= 2.0:
+        if score >= 4.0:
             return True
         return False
         # return True if score > 1.0 else False
