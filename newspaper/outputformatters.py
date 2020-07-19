@@ -134,7 +134,10 @@ class OutputFormatter(object):
             txt_lis = self.splitkeepsep(innerTrim(txt), '।')
             for txtx in txt_lis:
                 if(len(txts) != 3):
-                    txts.append(re.sub(r'\(([^\)]+)\)', " ", txtx))
+                    new_text = re.sub(r'\(([^\)]+)\)', " ", txtx)
+                    if(len(txts) == 0):
+                        new_text = re.sub(r'^.*?:', ' ', new_text)
+                    txts.append(new_text)
         return ' '.join(txts)
 
     def splitkeepsep(self, s, sep):
