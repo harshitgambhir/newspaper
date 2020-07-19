@@ -39,7 +39,7 @@ class OutputFormatter(object):
     def get_top_node(self):
         return self.top_node
 
-    def get_formatted(self, top_node, canonical_link):
+    def get_formatted(self, top_node, canonical_link, doc):
         """Returns the body text of an article, and also the body article
         html if specified. Returns in (text, html) form
         """
@@ -64,7 +64,7 @@ class OutputFormatter(object):
         self.remove_unique_nodes(canonical_link)
 
         text = self.convert_to_text()
-        firstp = self.get_firstp()
+        firstp = self.get_firstp(canonical_link, doc)
         # print(self.parser.nodeToString(self.get_top_node()))
 
         return (text, firstp, html)
@@ -102,13 +102,26 @@ class OutputFormatter(object):
                 txts.extend(txt_lis)
         return '\n\n'.join(txts)
 
-    def get_firstp(self):
+    def get_firstp(self, canonical_link, doc):
         txt = ''
         try:
-            for e in self.parser.getElementsByTag(self.get_top_node(), tag='p'):
-                txt = self.parser.getText(e)
-                if(len(txt) > 10):
-                    break
+            if canonical_link.startswith("https://navbharattimes.indiatimes.com") or canonical_link.startswith("http://navbharattimes.indiatimes.com"):
+                article_synopics = doc.xpath("//h2[@class='article_synopics']")
+                if len(article_synopics) > 0:
+                    for e in doc.xpath("//h2[@class='article_synopics']"):
+                        txt = self.parser.getText(e)
+                        if(len(txt) > 10):
+                            break
+                else:
+                    for e in self.parser.getElementsByTag(self.get_top_node(), tag='p'):
+                        txt = self.parser.getText(e)
+                        if(len(txt) > 10):
+                            break
+            else:
+                for e in self.parser.getElementsByTag(self.get_top_node(), tag='p'):
+                    txt = self.parser.getText(e)
+                    if(len(txt) > 10):
+                        break
 
         except ValueError as err:  # lxml error
             log.info('%s ignoring lxml node error: %s', __title__, err)

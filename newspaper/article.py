@@ -285,6 +285,12 @@ class Article(object):
                 self.top_node = self.extractor.calculate_best_node(self.doc)
             else:
                 self.top_node = self.top_node[0]
+        elif canonical_link.startswith("https://navbharattimes.indiatimes.com/"):
+            self.top_node = self.doc.xpath("//div[contains(@itemprop, 'articleBody')]")
+            if len(self.top_node) == 0:
+                self.top_node = self.extractor.calculate_best_node(self.doc)
+            else:
+                self.top_node = self.top_node[0]
         else:
             self.top_node = self.extractor.calculate_best_node(self.doc)
 
@@ -296,7 +302,7 @@ class Article(object):
             self.clean_top_node = copy.deepcopy(self.top_node)
 
             text, firstp, article_html = output_formatter.get_formatted(
-                self.top_node, self.canonical_link)
+                self.top_node, self.canonical_link, self.doc)
             self.set_article_html(article_html)
             self.set_text(text)
             self.set_firstp(firstp)
