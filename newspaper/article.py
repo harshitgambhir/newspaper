@@ -272,8 +272,15 @@ class Article(object):
 
         # Before any computations on the body, clean DOM object
         self.doc = document_cleaner.clean(self.doc)
-
-        self.top_node = self.extractor.calculate_best_node(self.doc)
+        
+        if canonical_link.startswith("https://aajtak.intoday.in"):
+            self.top_node = self.doc.xpath("//div[contains(@itemprop, 'articleBody')]")
+            if len(self.top_node) == 0:
+                self.top_node = self.extractor.calculate_best_node(self.doc)
+            else:
+                self.top_node = self.top_node[0]
+        else:
+            self.top_node = self.extractor.calculate_best_node(self.doc)
         if self.top_node is not None:
             video_extractor = VideoExtractor(self.config, self.top_node)
             self.set_movies(video_extractor.get_videos())

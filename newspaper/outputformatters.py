@@ -97,25 +97,21 @@ class OutputFormatter(object):
         return '\n\n'.join(txts)
 
     def get_firstp(self):
-        txts = []
-        for node in list(self.get_top_node()):
+        txt = ''
+        try:
+            for e in self.parser.getElementsByTag(self.get_top_node(), tag='p'):
+                txt = self.parser.getText(e)
+                if(len(txt) > 10):
+                    break
+
+        except ValueError as err:  # lxml error
+            log.info('%s ignoring lxml node error: %s', __title__, err)
             txt = None
-            try:
-                for e in self.parser.getElementsByTag(node, tag='p'):
-                    txt = self.parser.getText(e)
-                    if(len(txt) > 10):
-                        break
 
-            except ValueError as err:  # lxml error
-                log.info('%s ignoring lxml node error: %s', __title__, err)
-                txt = None
-
-            if txt is not None:
-                txt = unescape(txt)
-                txt_lis = innerTrim(txt).split(r'\n')
-                txt_lis = [n.strip(' ') for n in txt_lis]
-                txts.extend(txt_lis)
-        return '\n\n'.join(txts)
+        txt = unescape(txt)
+        txt_lis = innerTrim(txt).split(r'\n')
+        txt_lis = [n.strip(' ') for n in txt_lis]
+        return txt
 
     def convert_to_html(self):
         cleaned_node = self.parser.clean_article_html(self.get_top_node())
