@@ -109,10 +109,11 @@ class OutputFormatter(object):
         txt = None
         try:
             if canonical_link.startswith("https://navbharattimes.indiatimes.com") or canonical_link.startswith("http://navbharattimes.indiatimes.com"):
-                article_synopics = doc.xpath("//h2[@class='article_synopics']")
-                if len(article_synopics) > 0:
-                    for e in article_synopics:
-                        txt = self.parser.getText(e)
+                article_description = doc.xpath("//meta[@name='description']")
+                if len(article_description) > 0:
+                    article_description = [article_description[0]]
+                    for e in article_description:
+                        txt = e.attrib['content']
                         if(len(txt) > 10):
                             break
                 else:
@@ -183,7 +184,7 @@ class OutputFormatter(object):
                 if(len(txts) != 3):
                     new_text = re.sub(r'\(([^\)]+)\)', " ", txtx)
                     if(len(txts) == 0):
-                        new_text = re.sub(r'^.*?:', ' ', new_text)
+                        new_text = re.sub(r'^.*:', ' ', new_text)
                     txts.append(new_text)
         return ' '.join(txts)
 
