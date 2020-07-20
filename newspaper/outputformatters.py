@@ -106,12 +106,59 @@ class OutputFormatter(object):
 
     def get_firstp(self, canonical_link, doc):
         txts = []
+        txt = None
         try:
             if canonical_link.startswith("https://navbharattimes.indiatimes.com") or canonical_link.startswith("http://navbharattimes.indiatimes.com"):
                 article_synopics = doc.xpath("//h2[@class='article_synopics']")
                 if len(article_synopics) > 0:
-                    for e in doc.xpath("//h2[@class='article_synopics']"):
+                    for e in article_synopics:
                         txt = self.parser.getText(e)
+                        if(len(txt) > 10):
+                            break
+                else:
+                    for e in self.parser.getElementsByTag(self.get_top_node(), tag='p'):
+                        txt = self.parser.getText(e)
+                        if(len(txt) > 10):
+                            break
+            elif canonical_link.startswith("https://khabar.ndtv.com") or canonical_link.startswith("http://khabar.ndtv.com"):
+                article_description = doc.xpath("//span[@itemprop='description']")
+                if len(article_description) > 0:
+                    for e in article_description:
+                        txt = e.attrib['content']
+                        if(len(txt) > 10):
+                            break
+                else:
+                    for e in self.parser.getElementsByTag(self.get_top_node(), tag='p'):
+                        txt = self.parser.getText(e)
+                        if(len(txt) > 10):
+                            break
+            elif canonical_link.startswith("https://zeenews.india.com") or canonical_link.startswith("http://zeenews.india.com"):
+                article_description = doc.xpath("//meta[@name='description']")
+                if len(article_description) > 0:
+                    article_description = [article_description[0]]
+                    for e in article_description:
+                        txt = e.attrib['content']
+                        if(len(txt) > 10):
+                            break
+            elif canonical_link.startswith("https://aajtak.intoday.in") or canonical_link.startswith("http://aajtak.intoday.in"):
+                article_description = doc.xpath("//meta[@name='description']")
+                if len(article_description) > 0:
+                    article_description = [article_description[0]]
+                    for e in article_description:
+                        txt = e.attrib['content']
+                        if(len(txt) > 10):
+                            break
+                else:
+                    for e in self.parser.getElementsByTag(self.get_top_node(), tag='p'):
+                        txt = self.parser.getText(e)
+                        if(len(txt) > 10):
+                            break
+            elif canonical_link.startswith("https://www.indiatv.in") or canonical_link.startswith("http://www.indiatv.in"):
+                article_description = doc.xpath("//meta[@property='og:description']")
+                if len(article_description) > 0:
+                    article_description = [article_description[0]]
+                    for e in article_description:
+                        txt = e.attrib['content']
                         if(len(txt) > 10):
                             break
                 else:
@@ -203,6 +250,8 @@ class OutputFormatter(object):
                         el, tag='object')) == 0 \
                     and len(self.parser.getElementsByTag(
                         el, tag='embed')) == 0:
+                if el.attrib.has_key('itemprop') and el.attrib.has_key('content') and el.attrib['itemprop'] == 'description':
+                    continue
                 self.parser.remove(el)
 
     def remove_trailing_media_div(self):

@@ -61,7 +61,7 @@ class DocumentCleaner(object):
         doc_to_clean = self.clean_body_classes(doc_to_clean)
 
         doc_to_clean = self.remove_special_nodes(doc_to_clean)
-
+        
         doc_to_clean = self.clean_article_tags(doc_to_clean)
         doc_to_clean = self.clean_em_tags(doc_to_clean)
         doc_to_clean = self.remove_drop_caps(doc_to_clean)
@@ -77,6 +77,7 @@ class DocumentCleaner(object):
                                                self.facebook_broadcasting_re)
         doc_to_clean = self.remove_nodes_regex(doc_to_clean, self.twitter_re)
         doc_to_clean = self.clean_para_spans(doc_to_clean)
+
         # doc_to_clean = self.div_to_para(doc_to_clean, 'div')
         # doc_to_clean = self.div_to_para(doc_to_clean, 'span')
         # doc_to_clean = self.div_to_para(doc_to_clean, 'section')
@@ -86,9 +87,6 @@ class DocumentCleaner(object):
         for e in doc.xpath('//span[@class="_1zqzjicLfil9I9wfjfz2Gr"]'):
             self.parser.remove(e)
         for e in doc.xpath('//span[@class="_3qS8ZGooZdypeBayu6yHWN"]'):
-            self.parser.remove(e)
-        for e in doc.xpath('//span[contains(@style,"color: #7e90a0")]'):
-            print(e.attrib)
             self.parser.remove(e)
         return doc
 
