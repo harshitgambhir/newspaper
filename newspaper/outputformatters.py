@@ -167,6 +167,19 @@ class OutputFormatter(object):
                         txt = self.parser.getText(e)
                         if(len(txt) > 10):
                             break
+            elif canonical_link.startswith("https://www.punjabkesari.in") or canonical_link.startswith("http://www.punjabkesari.in"):
+                article_description = doc.xpath("//meta[@itemprop='description']")
+                if len(article_description) > 0:
+                    article_description = [article_description[0]]
+                    for e in article_description:
+                        txt = e.attrib['content']
+                        if(len(txt) > 10):
+                            break
+                else:
+                    for e in self.parser.getElementsByTag(self.get_top_node(), tag='p'):
+                        txt = self.parser.getText(e)
+                        if(len(txt) > 10):
+                            break
             else:
                 for e in self.parser.getElementsByTag(self.get_top_node(), tag='p'):
                     txt = self.parser.getText(e)
