@@ -140,6 +140,20 @@ class OutputFormatter(object):
                     for e in article_description:
                         txt = e.attrib['content']
                         if(len(txt) > 10):
+                            if txt[-1] == '.' or txt[-1] == '।':
+                                break
+                            else:
+                                article_description = doc.xpath("//h1[@class='article-heading']/following-sibling::p")
+                                if len(article_description) > 0:
+                                    article_description = [article_description[0]]
+                                    for e in article_description:
+                                        txt = self.parser.getText(e)
+                                        if(len(txt) > 10):
+                                            break
+                else:
+                    for e in self.parser.getElementsByTag(self.get_top_node(), tag='p'):
+                        txt = self.parser.getText(e)
+                        if(len(txt) > 10):
                             break
             elif canonical_link.startswith("https://aajtak.intoday.in") or canonical_link.startswith("http://aajtak.intoday.in"):
                 article_description = doc.xpath("//meta[@name='description']")
