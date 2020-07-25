@@ -297,6 +297,12 @@ class Article(object):
                 self.top_node = self.extractor.calculate_best_node(self.doc)
             else:
                 self.top_node = self.top_node[0]
+        elif canonical_link.startswith("https://hindi.news18.com/"):
+            self.top_node = self.doc.xpath("//div[contains(@class, 'storypara')]")
+            if len(self.top_node) == 0:
+                self.top_node = self.extractor.calculate_best_node(self.doc)
+            else:
+                self.top_node = self.top_node[0]
         else:
             self.top_node = self.extractor.calculate_best_node(self.doc)
 

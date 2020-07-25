@@ -194,6 +194,22 @@ class OutputFormatter(object):
                         txt = self.parser.getText(e)
                         if(len(txt) > 10):
                             break
+            elif canonical_link.startswith("https://hindi.news18.com/") or canonical_link.startswith("http://hindi.news18.com/"):
+                article_description = self.parser.getText(self.top_node).split("\\n")
+                if len(article_description) > 0 and len(article_description[0]) > 10:
+                    txt = article_description[0]
+                    lists = txt.split(".")
+                    if len(lists[0].split()) == 1:
+                        lists = lists[1:]
+                        txt = ".".join(lists)
+                else:
+                    article_description = doc.xpath("//meta[@name='description']")
+                    if len(article_description) > 0:
+                        article_description = [article_description[0]]
+                        for e in article_description:
+                            txt = e.attrib['content']
+                            if(len(txt) > 10):
+                                break
             else:
                 for e in self.parser.getElementsByTag(self.get_top_node(), tag='p'):
                     txt = self.parser.getText(e)
