@@ -106,7 +106,7 @@ class OutputFormatter(object):
 
     def get_firstp(self, canonical_link, doc):
         txts = []
-        txt = None
+        txt = ''
         try:
             if canonical_link.startswith("https://navbharattimes.indiatimes.com") or canonical_link.startswith("http://navbharattimes.indiatimes.com"):
                 article_description = doc.xpath("//meta[@name='description']")
@@ -122,39 +122,62 @@ class OutputFormatter(object):
                         if(len(txt) > 10):
                             break
             elif canonical_link.startswith("https://khabar.ndtv.com") or canonical_link.startswith("http://khabar.ndtv.com"):
-                article_description = doc.xpath("//span[@itemprop='description']")
-                if len(article_description) > 0:
-                    for e in article_description:
-                        txt = e.attrib['content']
-                        if(len(txt) > 10):
-                            break
-                else:
-                    for e in self.parser.getElementsByTag(self.get_top_node(), tag='p'):
-                        txt = self.parser.getText(e)
-                        if(len(txt) > 10):
-                            break
+                for e in self.parser.getElementsByTag(self.get_top_node(), tag='p'):
+                    txt = self.parser.getText(e)
+                    if(len(txt) > 10):
+                        lists = txt.split(".")
+                        lists = lists[:10]
+                        if len(lists[0].split()) == 1:
+                            lists = lists[1:]
+                        txt = ".".join(lists)
+                        break
+                if len(txt) < 10:
+                    article_description = doc.xpath("//h2[@data-detailexcerpt]")
+                    if len(article_description) > 0 and len(article_description[0].attrib['data-detailexcerpt']) > 10:
+                        txt = article_description[0].attrib['data-detailexcerpt']
+                        lists = txt.split(".")
+                        lists = lists[:3]
+                        if len(lists[0].split()) == 1:
+                            lists = lists[1:]
+                        txt = ".".join(lists)
+                    if len(txt) < 10:
+                        article_description = doc.xpath("//meta[@name='description']")
+                        if len(article_description) > 0 and len(article_description[0].attrib['content']) > 10:
+                            txt = article_description[0].attrib['content']
+                            lists = txt.split(".")
+                            lists = lists[:3]
+                            if len(lists[0].split()) == 1:
+                                lists = lists[1:]
+                            txt = ".".join(lists)
+                        else:
+                            article_description = doc.xpath("//span[@itemprop='description']")
+                            if len(article_description) > 0:
+                                for e in article_description:
+                                    txt = e.attrib['content']
+                                    if(len(txt) > 10):
+                                        break
             elif canonical_link.startswith("https://zeenews.india.com") or canonical_link.startswith("http://zeenews.india.com"):
-                article_description = doc.xpath("//meta[@name='description']")
-                if len(article_description) > 0:
-                    article_description = [article_description[0]]
-                    for e in article_description:
-                        txt = e.attrib['content']
-                        if(len(txt) > 10):
-                            if txt[-1] == '.' or txt[-1] == '।':
-                                break
-                            else:
-                                article_description = doc.xpath("//h1[@class='article-heading']/following-sibling::p")
-                                if len(article_description) > 0:
-                                    article_description = [article_description[0]]
-                                    for e in article_description:
-                                        txt = self.parser.getText(e)
-                                        if(len(txt) > 10):
-                                            break
-                else:
-                    for e in self.parser.getElementsByTag(self.get_top_node(), tag='p'):
-                        txt = self.parser.getText(e)
-                        if(len(txt) > 10):
-                            break
+                for e in self.parser.getElementsByTag(self.get_top_node(), tag='p'):
+                    txt = self.parser.getText(e)
+                    if(len(txt) > 10):
+                        break
+                if len(txt) < 10:
+                    article_description = doc.xpath("//meta[@name='description']")
+                    if len(article_description) > 0:
+                        article_description = [article_description[0]]
+                        for e in article_description:
+                            txt = e.attrib['content']
+                            if(len(txt) > 10):
+                                if txt[-1] == '.' or txt[-1] == '।':
+                                    break
+                                else:
+                                    article_description = doc.xpath("//h1[@class='article-heading']/following-sibling::p")
+                                    if len(article_description) > 0:
+                                        article_description = [article_description[0]]
+                                        for e in article_description:
+                                            txt = self.parser.getText(e)
+                                            if(len(txt) > 10):
+                                                break
             elif canonical_link.startswith("https://aajtak.intoday.in") or canonical_link.startswith("http://aajtak.intoday.in"):
                 article_description = doc.xpath("//meta[@name='description']")
                 if len(article_description) > 0:
@@ -169,18 +192,18 @@ class OutputFormatter(object):
                         if(len(txt) > 10):
                             break
             elif canonical_link.startswith("https://www.indiatv.in") or canonical_link.startswith("http://www.indiatv.in"):
-                article_description = doc.xpath("//meta[@property='og:description']")
-                if len(article_description) > 0:
+                for e in self.parser.getElementsByTag(self.get_top_node(), tag='p'):
+                    txt = self.parser.getText(e)
+                    if(len(txt) > 10):
+                        break
+                if len(txt) < 10:
+                    article_description = doc.xpath("//meta[@property='og:description']")
                     article_description = [article_description[0]]
                     for e in article_description:
                         txt = e.attrib['content']
                         if(len(txt) > 10):
                             break
-                else:
-                    for e in self.parser.getElementsByTag(self.get_top_node(), tag='p'):
-                        txt = self.parser.getText(e)
-                        if(len(txt) > 10):
-                            break
+                    
             elif canonical_link.startswith("https://www.punjabkesari.in") or canonical_link.startswith("http://www.punjabkesari.in"):
                 article_description = doc.xpath("//meta[@itemprop='description']")
                 if len(article_description) > 0:
@@ -225,6 +248,11 @@ class OutputFormatter(object):
             txt_lis = self.splitkeepsep(innerTrim(txt), '।')
             for txtx in txt_lis:
                 if(len(txts) != 3):
+                    new_text = re.sub(r'\(([^\)]+)\)', " ", txtx)
+                    if(len(txts) == 0):
+                        new_text = re.sub(r'^.*:', ' ', new_text)
+                    txts.append(new_text)
+                elif canonical_link.startswith("https://www.indiatv.in") and len(txts) != 5:
                     new_text = re.sub(r'\(([^\)]+)\)', " ", txtx)
                     if(len(txts) == 0):
                         new_text = re.sub(r'^.*:', ' ', new_text)
